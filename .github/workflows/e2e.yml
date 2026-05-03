@@ -1,0 +1,56 @@
+---
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build Docker image
+        run: docker build -t lldap-operator:test .
+
+      - name: Create k3d cluster
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          k3d-args: "--no-lb"
+
+      - name: Import image into k3d
+        run: k3d image import lldap-operator:test
+
+      - name: Deploy lldap test instance
+        run: |
+          kubectl apply -f tests/e2e/fixtures/lldap-credentials.yaml
+          kubectl apply -f tests/e2e/fixtures/lldap-deployment.yaml
+          kubectl wait --for=condition=available deployment/lldap --timeout=120s
+
+      - name: Install operator via Helm
+        run: |
+          helm install lldap-operator charts/lldap-resources-operator \
+            --set image.repository=lldap-operator \
+            --set image.tag=test \
+            --set image.pullPolicy=Never \
+            --set lldap.url=http://lldap:17170
+
+      - name: Apply test resources
+        run: |
+          kubectl apply -f tests/e2e/fixtures/test-user.yaml
+          kubectl apply -f tests/e2e/fixtures/test-group.yaml
+
+      - name: Wait for reconciliation
+        run: |
+          kubectl wait --for=condition=Ready lldapuser/test-user --timeout=60s
+          kubectl wait --for=condition=Ready lldapgroup/test-group --timeout=60s

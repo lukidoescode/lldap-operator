@@ -1,0 +1,21 @@
+apiVersion: lldap-resources-operator.lukidoescode.com/v1alpha1
+kind: LldapUser
+metadata:
+  name: test-user
+spec:
+  username: "test.user"
+  email: "test@example.com"
+  displayName: "Test User"
+  firstName: "Test"
+  lastName: "User"
+  passwordSecretRef:
+    name: test-user-password
+    key: password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-user-password
+type: Opaque
+stringData:
+  password: test-password-123

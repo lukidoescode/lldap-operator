@@ -1,0 +1,15 @@
+[package]
+name = "lldap-resources-operator-crds"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "CRD type definitions for the lldap resources operator"
+
+[lints]
+workspace = true
+
+[dependencies]

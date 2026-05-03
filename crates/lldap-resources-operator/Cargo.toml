@@ -1,0 +1,24 @@
+[package]
+name = "lldap-resources-operator"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+description = "A Kubernetes operator for lldap resources (e.g. users, groups) related CRDs"
+readme = "../../README.md"
+keywords = ["kubernetes", "operator", "lldap"]
+categories = []
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "lldap-operator"
+path = "src/main.rs"
+
+[dependencies]
+clap = "4.6.0"
+thiserror = { workspace = true }

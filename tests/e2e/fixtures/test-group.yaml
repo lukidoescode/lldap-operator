@@ -1,0 +1,6 @@
+apiVersion: lldap-resources-operator.lukidoescode.com/v1alpha1
+kind: LldapGroup
+metadata:
+  name: test-group
+spec:
+  displayName: "Test Group"

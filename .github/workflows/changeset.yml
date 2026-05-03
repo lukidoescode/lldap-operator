@@ -1,0 +1,28 @@
+---
+name: Verify Changesets
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify Changeset Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base ref
+        run: git fetch origin "${{ github.base_ref }}"
+
+      - name: Run cargo-changeset verify
+        run: |-
+          docker run --rm \
+            -v "$(pwd):/workspace" -w /workspace \
+            "ghcr.io/lukidoescode/cargo-changeset:latest" \
+            verify --base "origin/${{ github.base_ref }}"
