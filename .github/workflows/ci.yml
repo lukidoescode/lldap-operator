@@ -105,3 +105,25 @@ jobs:
 
       - name: Build book
         run: mdbook build docs
+
+  deploy-docs:
+    name: Deploy Main Branch Docs
+    needs: docs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Trigger docs deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-docs.yml',
+              ref: 'main',
+              inputs: {
+                version: 'main-branch'
+              }
+            });

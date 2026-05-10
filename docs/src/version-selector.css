@@ -1,0 +1,26 @@
+#version-selector {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: 1px solid var(--sidebar-bg);
+  border-radius: 4px;
+  color: var(--icons);
+  cursor: pointer;
+  font-size: 0.85em;
+  margin-right: 8px;
+  padding: 4px 24px 4px 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+#version-selector:hover,
+#version-selector:focus {
+  border-color: var(--icons-hover);
+  color: var(--icons-hover);
+}
+
+#version-selector option {
+  background-color: var(--bg);
+  color: var(--fg);
+}

@@ -1,0 +1,96 @@
+---
+name: Deploy Docs
+
+# Triggered explicitly: by ci.yml (main-branch) or release.yml (versioned).
+# The workflow YAML is always read from the dispatching ref (usually main),
+# but docs content is checked out from the target ref (tag or main). If the
+# mdBook configuration changes incompatibly between versions, older docs may
+# not build correctly with the current workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: >-
+          Version to deploy (e.g. v0.3.0) or "main-branch" for dev docs
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and Deploy Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine deployment target
+        id: target
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [[ "$VERSION" == "main-branch" ]]; then
+            echo "destination=main-branch" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            echo "ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "Deploying main-branch docs to /main-branch/"
+          elif [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "destination=${VERSION}" >> "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+            echo "ref=lldap-operator@${VERSION}" >> "$GITHUB_OUTPUT"
+            echo "Deploying release docs to /${VERSION}/"
+          else
+            echo "::error::Invalid version format '${VERSION}'. Expected 'vX.Y.Z' (e.g. v0.3.0) or 'main-branch'."
+            exit 1
+          fi
+
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+
+      - name: Install mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.5.2'
+
+      - name: Build book
+        run: mdbook build docs
+
+      - name: Deploy versioned docs
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/book
+          destination_dir: ${{ steps.target.outputs.destination }}
+          keep_files: true
+
+      - name: Update versions.json and root redirect
+        if: steps.target.outputs.is_release == 'true'
+        run: |
+          git fetch origin gh-pages
+          git worktree add /tmp/gh-pages gh-pages
+
+          chmod +x .github/scripts/generate-versions-json.sh
+          .github/scripts/generate-versions-json.sh /tmp/gh-pages /tmp/versions.json
+
+          LATEST=$(python3 -c "import json; print(json.load(open('/tmp/versions.json'))['latest'])")
+
+          chmod +x .github/scripts/generate-redirect.sh
+          .github/scripts/generate-redirect.sh "$LATEST" /tmp/root-index.html
+
+          cp /tmp/versions.json /tmp/gh-pages/versions.json
+          cp /tmp/root-index.html /tmp/gh-pages/index.html
+
+          cd /tmp/gh-pages
+          git add versions.json index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update versions.json and root redirect for ${{ inputs.version }}" \
+            || echo "No changes to commit"
+          git push origin gh-pages
+
+          cd -
+          git worktree remove /tmp/gh-pages
