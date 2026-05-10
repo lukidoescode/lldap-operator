@@ -6,8 +6,8 @@ resolver = "3"
 edition = "2024"
 rust-version = "1.85.0"
 license = "MIT"
-repository = "https://github.com/lukidoescode/lldap-resources-operator"
-homepage = "https://github.com/lukidoescode/lldap-resources-operator"
+repository = "https://github.com/lukidoescode/lldap-operator"
+homepage = "https://github.com/lukidoescode/lldap-operator"
 authors = ["Lukas Wagner <appdev.lukaswagner@gmail.com>"]
 
 [workspace.lints.clippy]
@@ -31,29 +31,29 @@ commit-title-template = "Release {new-version}"
 changes-in-body = true
 
 [[workspace.metadata.changeset.additional-packages]]
-name = "lldap-resources-operator-helm-chart"
-path = "charts/lldap-resources-operator"
-influence = ["charts/lldap-resources-operator/**"]
+name = "lldap-operator-helm-chart"
+path = "charts/lldap-operator"
+influence = ["charts/lldap-operator/**"]
 
 [workspace.metadata.changeset.additional-packages.manifest]
-file-path = "charts/lldap-resources-operator/Chart.yaml"
+file-path = "charts/lldap-operator/Chart.yaml"
 format = "yaml"
 version-field-path = "version"
 
 [[workspace.metadata.changeset.additional-packages.dependencies]]
-dependency-name = "lldap-resources-operator"
+dependency-name = "lldap-operator"
 
 [workspace.metadata.changeset.additional-packages.dependencies.version-tracking-manifest]
-file-path = "charts/lldap-resources-operator/Chart.yaml"
+file-path = "charts/lldap-operator/Chart.yaml"
 format = "yaml"
 version-field-path = "appVersion"
 
 [workspace.dependencies]
 # Internal dependencies
-lldap-resources-operator-crds = { path = "crates/lldap-resources-operator-crds", version = "0.0.0" }
-lldap-resources-operator-traits = { path = "crates/lldap-resources-operator-traits", version = "0.0.0" }
-lldap-resources-operator-client = { path = "crates/lldap-resources-operator-client", version = "0.0.0" }
-lldap-resources-operator-reconciler = { path = "crates/lldap-resources-operator-reconciler", version = "0.0.0" }
+lldap-operator-crds = { path = "crates/lldap-operator-crds", version = "0.0.0" }
+lldap-operator-traits = { path = "crates/lldap-operator-traits", version = "0.0.0" }
+lldap-operator-client = { path = "crates/lldap-operator-client", version = "0.0.0" }
+lldap-operator-reconciler = { path = "crates/lldap-operator-reconciler", version = "0.0.0" }
 
 # External dependencies
 thiserror = "2.0.18"

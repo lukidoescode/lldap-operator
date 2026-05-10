@@ -1,6 +1,6 @@
-# lldap-resources-operator
+# lldap-operator
 
-[![CI](https://github.com/lukidoescode/lldap-resources-operator/actions/workflows/ci.yml/badge.svg)](https://github.com/lukidoescode/lldap-resources-operator/actions/workflows/ci.yml)
+[![CI](https://github.com/lukidoescode/lldap-operator/actions/workflows/ci.yml/badge.svg)](https://github.com/lukidoescode/lldap-operator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A Kubernetes operator that manages [lldap](https://github.com/lldap/lldap)
@@ -21,8 +21,8 @@ users and groups as native Kubernetes resources via Custom Resource Definitions
 Install using Helm:
 
 ```bash
-helm repo add lldap-resources-operator https://lukidoescode.github.io/lldap-resources-operator
-helm install lldap-operator lldap-resources-operator/lldap-resources-operator
+helm repo add lldap-operator https://lukidoescode.github.io/lldap-operator
+helm install lldap-operator lldap-operator/lldap-operator
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ helm install lldap-operator lldap-resources-operator/lldap-resources-operator
 ### Creating a group
 
 ```yaml
-apiVersion: lldap-resources-operator.lukidoescode.com/v1alpha1
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapGroup
 metadata:
   name: my-group
@@ -41,7 +41,7 @@ spec:
 ### Creating a user
 
 ```yaml
-apiVersion: lldap-resources-operator.lukidoescode.com/v1alpha1
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapUser
 metadata:
   name: my-user
@@ -65,11 +65,11 @@ and organized as a Cargo workspace:
 
 | Crate | Purpose |
 |-------|---------|
-| `lldap-resources-operator` | Operator binary |
-| `lldap-resources-operator-crds` | CRD type definitions |
-| `lldap-resources-operator-traits` | Trait definitions for lldap operations |
-| `lldap-resources-operator-client` | GraphQL client for lldap |
-| `lldap-resources-operator-reconciler` | Reconciliation business logic |
+| `lldap-operator` | Operator binary |
+| `lldap-operator-crds` | CRD type definitions |
+| `lldap-operator-traits` | Trait definitions for lldap operations |
+| `lldap-operator-client` | GraphQL client for lldap |
+| `lldap-operator-reconciler` | Reconciliation business logic |
 
 ## Development
 

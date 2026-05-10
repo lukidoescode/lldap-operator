@@ -1,0 +1,68 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: lldapgroups.lldap-operator.lukidoescode.com
+spec:
+  group: lldap-operator.lukidoescode.com
+  names:
+    kind: LldapGroup
+    listKind: LldapGroupList
+    plural: lldapgroups
+    singular: lldapgroup
+    shortNames:
+      - llg
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          description: An lldap group managed by the operator
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - displayName
+              properties:
+                displayName:
+                  type: string
+            status:
+              type: object
+              properties:
+                groupId:
+                  type: integer
+                uuid:
+                  type: string
+                observedGeneration:
+                  type: integer
+                  format: int64
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: DisplayName
+          type: string
+          jsonPath: .spec.displayName
+        - name: Ready
+          type: string
+          jsonPath: .status.conditions[?(@.type=="Ready")].status
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp

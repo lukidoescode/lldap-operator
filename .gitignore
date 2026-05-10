@@ -102,3 +102,6 @@ $RECYCLE.BIN/
 # Added by cargo
 
 /target
+
+# mdBook build output
+docs/book/

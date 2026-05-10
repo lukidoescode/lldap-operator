@@ -1,0 +1,8 @@
+The lldap-operator has been deployed.
+
+It will watch for LldapUser and LldapGroup custom resources and reconcile them
+with the lldap instance at {{ .Values.lldap.url }}.
+
+To verify the operator is running:
+
+  kubectl get pods -l app.kubernetes.io/name={{ include "lldap-operator.name" . }}

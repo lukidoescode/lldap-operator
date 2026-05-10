@@ -2,8 +2,7 @@
 name: E2E Tests
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -39,7 +38,7 @@ jobs:
 
       - name: Install operator via Helm
         run: |
-          helm install lldap-operator charts/lldap-resources-operator \
+          helm install lldap-operator charts/lldap-operator \
             --set image.repository=lldap-operator \
             --set image.tag=test \
             --set image.pullPolicy=Never \
