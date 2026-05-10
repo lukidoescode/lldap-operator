@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/lukidoescode/lldap-operator/actions/workflows/ci.yml/badge.svg)](https://github.com/lukidoescode/lldap-operator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://lukidoescode.github.io/lldap-operator/)
 
 A Kubernetes operator that manages [lldap](https://github.com/lldap/lldap)
 users and groups as native Kubernetes resources via Custom Resource Definitions

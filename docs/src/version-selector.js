@@ -31,6 +31,8 @@
         select.appendChild(opt);
       });
 
+      if (select.options.length === 0) return;
+
       select.addEventListener('change', function () {
         window.location.href = '/' + this.value + '/' + currentPage;
       });

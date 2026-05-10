@@ -75,7 +75,6 @@ jobs:
           keep_files: true
 
       - name: Update versions.json and root redirect
-        if: steps.target.outputs.is_release == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
