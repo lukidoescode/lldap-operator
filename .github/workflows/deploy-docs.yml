@@ -59,47 +59,40 @@ jobs:
           ref: ${{ steps.target.outputs.ref }}
 
       - name: Install mdBook
-        uses: peaceiris/actions-mdbook@v2
+        uses: taiki-e/install-action@v2
         with:
-          mdbook-version: '0.5.2'
+          tool: mdbook@0.5.2
 
       - name: Build book
         run: mdbook build docs
 
       - name: Deploy versioned docs
-        uses: peaceiris/actions-gh-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          publish_dir: ./docs/book
-          destination_dir: ${{ steps.target.outputs.destination }}
-          keep_files: true
+          token: ${{ steps.app-token.outputs.token }}
+          folder: ./docs/book
+          target-folder: ${{ steps.target.outputs.destination }}
+          clean: false
 
-      - name: Update versions.json and root redirect
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Generate versions.json and root redirect
         run: |
-          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
           git fetch origin gh-pages
-          git worktree add /tmp/gh-pages gh-pages
+          git worktree add /tmp/gh-pages origin/gh-pages
+          mkdir -p /tmp/meta
 
           chmod +x .github/scripts/generate-versions-json.sh
-          .github/scripts/generate-versions-json.sh /tmp/gh-pages /tmp/versions.json
+          .github/scripts/generate-versions-json.sh /tmp/gh-pages /tmp/meta/versions.json
 
-          LATEST=$(python3 -c "import json; print(json.load(open('/tmp/versions.json'))['latest'])")
+          LATEST=$(python3 -c "import json; print(json.load(open('/tmp/meta/versions.json'))['latest'])")
 
           chmod +x .github/scripts/generate-redirect.sh
-          .github/scripts/generate-redirect.sh "$LATEST" /tmp/root-index.html
+          .github/scripts/generate-redirect.sh "$LATEST" /tmp/meta/index.html
 
-          cp /tmp/versions.json /tmp/gh-pages/versions.json
-          cp /tmp/root-index.html /tmp/gh-pages/index.html
-
-          cd /tmp/gh-pages
-          git add versions.json index.html
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Update versions.json and root redirect for ${{ inputs.version }}" \
-            || echo "No changes to commit"
-          git push origin gh-pages
-
-          cd -
           git worktree remove /tmp/gh-pages
+
+      - name: Deploy versions.json and root redirect
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          folder: /tmp/meta
+          clean: false
