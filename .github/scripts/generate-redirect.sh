@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LATEST="${1}"
+LATEST="${1:-main-branch}"
 OUTPUT="${2:-index.html}"
 
 cat > "$OUTPUT" << HTMLEOF
