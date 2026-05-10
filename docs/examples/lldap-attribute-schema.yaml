@@ -1,0 +1,12 @@
+# NOTE: LldapAttributeSchema is a planned CRD and is not yet available.
+# This example shows the anticipated resource structure.
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
+kind: LldapAttributeSchema
+metadata:
+  name: department
+spec:
+  attributeName: "department"
+  attributeType: "String"
+  isList: false
+  isVisible: true
+  isEditable: true

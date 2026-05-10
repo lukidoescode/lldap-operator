@@ -1,4 +1,4 @@
-apiVersion: lldap-resources-operator.lukidoescode.com/v1alpha1
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapUser
 metadata:
   name: test-user

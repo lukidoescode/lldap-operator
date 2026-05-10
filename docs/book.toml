@@ -1,0 +1,15 @@
+[book]
+title = "lldap-operator"
+authors = ["Lukas Wagner"]
+description = "Documentation for the lldap-operator Kubernetes operator"
+language = "en"
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/lukidoescode/lldap-operator"
+edit-url-template = "https://github.com/lukidoescode/lldap-operator/edit/main/docs/{path}"
+default-theme = "navy"
+preferred-dark-theme = "navy"
+
+[output.html.search]
+enable = true

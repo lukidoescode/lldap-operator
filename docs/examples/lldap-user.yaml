@@ -1,0 +1,23 @@
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
+kind: LldapUser
+metadata:
+  name: alice
+spec:
+  username: "alice.smith"
+  email: "alice.smith@example.com"
+  displayName: "Alice Smith"
+  firstName: "Alice"
+  lastName: "Smith"
+  groups:
+    - "engineering"
+  passwordSecretRef:
+    name: alice-password
+    key: password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alice-password
+type: Opaque
+stringData:
+  password: "change-me-on-first-login"

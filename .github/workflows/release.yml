@@ -123,7 +123,7 @@ jobs:
         id: version
         run: |
           VERSION=$(cargo metadata --format-version=1 --no-deps \
-            | jq -r '.packages[] | select(.name=="lldap-resources-operator") | .version')
+            | jq -r '.packages[] | select(.name=="lldap-operator") | .version')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@v6

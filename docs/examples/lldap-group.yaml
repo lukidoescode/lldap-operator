@@ -1,6 +1,6 @@
 apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapGroup
 metadata:
-  name: test-group
+  name: engineering
 spec:
-  displayName: "Test Group"
+  displayName: "Engineering"

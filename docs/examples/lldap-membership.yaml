@@ -1,0 +1,9 @@
+# NOTE: LldapMembership is a planned CRD and is not yet available.
+# This example shows the anticipated resource structure.
+apiVersion: lldap-operator.lukidoescode.com/v1alpha1
+kind: LldapMembership
+metadata:
+  name: alice-engineering
+spec:
+  userRef: "alice"
+  groupRef: "engineering"

@@ -46,13 +46,13 @@ echo "Waiting for lldap to be ready..."
 kubectl wait --for=condition=available deployment/lldap --timeout=120s
 
 echo "Installing CRDs..."
-kubectl apply -f "$PROJECT_DIR/charts/lldap-resources-operator/crds/"
+kubectl apply -f "$PROJECT_DIR/charts/lldap-operator/crds/"
 
 echo ""
 echo "Local development environment is ready."
 echo ""
 echo "To install the operator via Helm:"
-echo "  helm install lldap-operator $PROJECT_DIR/charts/lldap-resources-operator \\"
+echo "  helm install lldap-operator $PROJECT_DIR/charts/lldap-operator \\"
 echo "    --set image.repository=lldap-operator \\"
 echo "    --set image.tag=dev \\"
 echo "    --set image.pullPolicy=Never \\"

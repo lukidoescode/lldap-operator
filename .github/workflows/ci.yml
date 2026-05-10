@@ -90,4 +90,18 @@ jobs:
       - uses: azure/setup-helm@v4
 
       - name: Lint Helm chart
-        run: helm lint charts/lldap-resources-operator
+        run: helm lint charts/lldap-operator
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.5.2'
+
+      - name: Build book
+        run: mdbook build docs
