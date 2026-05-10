@@ -27,6 +27,13 @@ jobs:
     name: Build and Deploy Documentation
     runs-on: ubuntu-latest
     steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Determine deployment target
         id: target
         run: |
@@ -62,14 +69,17 @@ jobs:
       - name: Deploy versioned docs
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           publish_dir: ./docs/book
           destination_dir: ${{ steps.target.outputs.destination }}
           keep_files: true
 
       - name: Update versions.json and root redirect
         if: steps.target.outputs.is_release == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
           git fetch origin gh-pages
           git worktree add /tmp/gh-pages gh-pages
 
