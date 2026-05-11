@@ -66,33 +66,31 @@ jobs:
       - name: Build book
         run: mdbook build docs
 
-      - name: Deploy versioned docs
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          folder: ./docs/book
-          target-folder: ${{ steps.target.outputs.destination }}
-          clean: false
-
-      - name: Generate versions.json and root redirect
+      - name: Prepare deployment
         run: |
           git fetch origin gh-pages
           git worktree add /tmp/gh-pages origin/gh-pages
-          mkdir -p /tmp/meta
 
+          # Start from existing gh-pages content, then overlay new docs
+          cp -r /tmp/gh-pages /tmp/deploy
+          rm -rf /tmp/deploy/.git
+          mkdir -p /tmp/deploy/${{ steps.target.outputs.destination }}
+          cp -r ./docs/book/* /tmp/deploy/${{ steps.target.outputs.destination }}/
+
+          # Generate from assembled state so new versions are included
           chmod +x .github/scripts/generate-versions-json.sh
-          .github/scripts/generate-versions-json.sh /tmp/gh-pages /tmp/meta/versions.json
+          .github/scripts/generate-versions-json.sh /tmp/deploy /tmp/deploy/versions.json
 
-          LATEST=$(python3 -c "import json; print(json.load(open('/tmp/meta/versions.json'))['latest'])")
+          LATEST=$(python3 -c "import json; print(json.load(open('/tmp/deploy/versions.json'))['latest'])")
 
           chmod +x .github/scripts/generate-redirect.sh
-          .github/scripts/generate-redirect.sh "$LATEST" /tmp/meta/index.html
+          .github/scripts/generate-redirect.sh "$LATEST" /tmp/deploy/index.html
 
           git worktree remove /tmp/gh-pages
 
-      - name: Deploy versions.json and root redirect
+      - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
-          folder: /tmp/meta
+          folder: /tmp/deploy
           clean: false
