@@ -11,7 +11,7 @@
   var pageUrl = window.location.href;
   var currentPage = pageUrl.startsWith(versionBase) ? pageUrl.substring(versionBase.length) : '';
 
-  fetch(siteRoot + 'versions.json')
+  fetch(new URL('versions.json', siteRoot).href)
     .then(function (res) {
       if (!res.ok) throw new Error(res.status);
       return res.json();
@@ -40,7 +40,7 @@
       if (select.options.length === 0) return;
 
       select.addEventListener('change', function () {
-        window.location.href = siteRoot + this.value + '/' + currentPage;
+        window.location.href = new URL(this.value + '/' + currentPage, siteRoot).href;
       });
 
       var container = document.querySelector('.right-buttons');
