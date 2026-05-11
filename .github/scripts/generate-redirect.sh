@@ -9,11 +9,11 @@ cat > "$OUTPUT" << HTMLEOF
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=/${LATEST}/">
+  <meta http-equiv="refresh" content="0; url=./${LATEST}/">
   <title>Redirecting to latest docs</title>
 </head>
 <body>
-  <p>Redirecting to <a href="/${LATEST}/">latest documentation (${LATEST})</a></p>
+  <p>Redirecting to <a href="./${LATEST}/">latest documentation (${LATEST})</a></p>
 </body>
 </html>
 HTMLEOF

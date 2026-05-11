@@ -1,11 +1,17 @@
 (function () {
   'use strict';
 
-  var pathSegments = window.location.pathname.split('/');
-  var currentVersion = pathSegments[1] || '';
-  var currentPage = pathSegments.slice(2).join('/');
+  // The script is served from <site-root>/<version>/src/version-selector.js.
+  // Use its URL to derive the site root and current version, so paths work
+  // regardless of whether docs are hosted at the domain root or a subpath.
+  var scriptUrl = document.currentScript.src;
+  var versionBase = new URL('..', scriptUrl).href;
+  var siteRoot = new URL('..', versionBase).href;
+  var currentVersion = versionBase.replace(/\/$/, '').split('/').pop() || '';
+  var pageUrl = window.location.href;
+  var currentPage = pageUrl.startsWith(versionBase) ? pageUrl.substring(versionBase.length) : '';
 
-  fetch('/versions.json')
+  fetch(new URL('versions.json', siteRoot).href)
     .then(function (res) {
       if (!res.ok) throw new Error(res.status);
       return res.json();
@@ -34,7 +40,7 @@
       if (select.options.length === 0) return;
 
       select.addEventListener('change', function () {
-        window.location.href = '/' + this.value + '/' + currentPage;
+        window.location.href = new URL(this.value + '/' + currentPage, siteRoot).href;
       });
 
       var container = document.querySelector('.right-buttons');
