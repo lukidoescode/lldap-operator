@@ -77,8 +77,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin gh-pages
-          git worktree add /tmp/gh-pages gh-pages
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages
+            git worktree add /tmp/gh-pages gh-pages
+          else
+            git worktree add --orphan -b gh-pages /tmp/gh-pages
+          fi
 
           # Copy new docs into the version subdirectory
           mkdir -p /tmp/gh-pages/${{ steps.target.outputs.destination }}

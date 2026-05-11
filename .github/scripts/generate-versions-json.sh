@@ -14,11 +14,19 @@ if [[ ${#VERSIONS[@]} -eq 0 ]]; then
   SORTED=()
 else
   IFS=$'\n'
-  SORTED=($(printf '%s\n' "${VERSIONS[@]}" | sed 's/^v//' | sort -t. -k1,1rn -k2,2rn -k3,3rn | sed 's/^/v/'))
+  SORTED=($(printf '%s\n' "${VERSIONS[@]}" | sort -rV))
   unset IFS
 fi
 
-LATEST="${SORTED[0]:-}"
+LATEST=""
+if [[ ${#SORTED[@]} -gt 0 ]]; then
+  for v in "${SORTED[@]}"; do
+    if [[ ! "$v" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
+      LATEST="$v"
+      break
+    fi
+  done
+fi
 
 HAS_MAIN=false
 if [ -d "$GH_PAGES_DIR/main-branch" ]; then
