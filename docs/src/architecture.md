@@ -16,4 +16,3 @@ The operator is organized as a Cargo workspace with focused crates:
 | `lldap-operator-reconciler` | Reconciliation business logic |
 
 <!-- TODO: Add reconciliation flow diagram -->
-<!-- TODO: Document error handling patterns and trait boundaries -->
