@@ -2,5 +2,11 @@ apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapGroup
 metadata:
   name: engineering
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
 spec:
   displayName: "Engineering"
+  attributes:
+    - name: costCenter
+      value:
+        - "1234"

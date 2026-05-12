@@ -76,7 +76,7 @@ and organized as a Cargo workspace:
 
 ### Prerequisites
 
-- Rust 1.85+
+- Rust 1.88+
 - Docker
 - [kind](https://kind.sigs.k8s.io/)
 - [Helm](https://helm.sh/)
