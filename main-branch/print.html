@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "navy";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-5c4370a1.js";
+            window.path_to_searchindex_js = "searchindex-eaa41360.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-1c901476.js"></script>
@@ -228,10 +228,10 @@ values.</p>
 <tr><th>Kind</th><th>Description</th><th>Status</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#lldapuser">LldapUser</a></td><td>Manages lldap user accounts</td><td>Available</td></tr>
-<tr><td><a href="#lldapgroup">LldapGroup</a></td><td>Manages lldap groups</td><td>Available</td></tr>
-<tr><td><a href="#lldapmembership">LldapMembership</a></td><td>Manages group membership relationships</td><td>Planned</td></tr>
-<tr><td><a href="#lldapattributeschema">LldapAttributeSchema</a></td><td>Manages custom attribute schemas</td><td>Planned</td></tr>
+<tr><td><a href="#lldapuser"><code>LldapUser</code></a></td><td>Manages lldap user accounts</td><td>Schema only</td></tr>
+<tr><td><a href="#lldapgroup"><code>LldapGroup</code></a></td><td>Manages lldap groups</td><td>Schema only</td></tr>
+<tr><td><a href="#lldapmembership"><code>LldapMembership</code></a></td><td>Manages group membership relationships</td><td>Schema only</td></tr>
+<tr><td><a href="#lldapattributeschema"><code>LldapAttributeSchema</code></a></td><td>Manages custom attribute schemas</td><td>Schema only</td></tr>
 </tbody>
 </table>
 </div>
@@ -240,22 +240,30 @@ values.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="lldapuser"><a class="header" href="#lldapuser">LldapUser</a></h1>
 <p>An <code>LldapUser</code> resource declares an lldap user account managed by the operator.</p>
+<p>Each resource must carry the <code>lldap-operator.lukidoescode.com/lldap-instance</code>
+label whose value selects which lldap instance the user belongs to. The operator
+ignores resources without this label.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <pre><code class="language-yaml">apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapUser
 metadata:
   name: alice
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
 spec:
   username: "alice.smith"
   email: "alice.smith@example.com"
   displayName: "Alice Smith"
   firstName: "Alice"
   lastName: "Smith"
-  groups:
-    - "engineering"
+  passwordPolicy: Manage
   passwordSecretRef:
     name: alice-password
     key: password
+  attributes:
+    - name: department
+      value:
+        - "Engineering"
 ---
 apiVersion: v1
 kind: Secret
@@ -265,7 +273,6 @@ type: Opaque
 stringData:
   password: "change-me-on-first-login"
 </code></pre>
-<!-- TODO: Document spec fields, status fields, and behavior details -->
 <h2 id="spec-fields"><a class="header" href="#spec-fields">Spec Fields</a></h2>
 <div class="table-wrapper">
 <table>
@@ -273,18 +280,21 @@ stringData:
 <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>username</code></td><td>string</td><td>yes</td><td>LDAP username</td></tr>
+<tr><td><code>username</code></td><td>string</td><td>yes</td><td>LDAP username (1–64 chars, <code>[a-zA-Z0-9._-]</code>)</td></tr>
 <tr><td><code>email</code></td><td>string</td><td>yes</td><td>Email address</td></tr>
 <tr><td><code>displayName</code></td><td>string</td><td>no</td><td>Display name</td></tr>
 <tr><td><code>firstName</code></td><td>string</td><td>no</td><td>First name</td></tr>
 <tr><td><code>lastName</code></td><td>string</td><td>no</td><td>Last name</td></tr>
-<tr><td><code>groups</code></td><td>string[]</td><td>no</td><td>Group memberships by name</td></tr>
-<tr><td><code>passwordSecretRef</code></td><td>object</td><td>yes</td><td>Reference to a Secret containing the password</td></tr>
-<tr><td><code>passwordSecretRef.name</code></td><td>string</td><td>yes</td><td>Name of the Secret</td></tr>
-<tr><td><code>passwordSecretRef.key</code></td><td>string</td><td>yes</td><td>Key within the Secret containing the password</td></tr>
+<tr><td><code>attributes</code></td><td>AttributeValue[]</td><td>no</td><td>Custom attribute values; each requires a corresponding <code>LldapAttributeSchema</code></td></tr>
+<tr><td><code>passwordPolicy</code></td><td>string</td><td>no</td><td>One of <code>Manage</code> (default), <code>InitialOnly</code>, <code>Ignore</code></td></tr>
+<tr><td><code>passwordSecretRef</code></td><td>object</td><td>no</td><td>Reference to a Secret containing the password</td></tr>
+<tr><td><code>passwordSecretRef.name</code></td><td>string</td><td>yes (when set)</td><td>Name of the Secret</td></tr>
+<tr><td><code>passwordSecretRef.key</code></td><td>string</td><td>yes (when set)</td><td>Key within the Secret containing the password</td></tr>
 </tbody>
 </table>
 </div>
+<p>Group memberships are not declared on <code>LldapUser</code>. Use <code>LldapMembership</code> to
+attach users to groups.</p>
 <h2 id="status"><a class="header" href="#status">Status</a></h2>
 <div class="table-wrapper">
 <table>
@@ -293,6 +303,7 @@ stringData:
 </thead>
 <tbody>
 <tr><td><code>uuid</code></td><td>string</td><td>User UUID assigned by lldap</td></tr>
+<tr><td><code>passwordHash</code></td><td>string</td><td>Hash of the last reconciled password, used to detect Secret changes</td></tr>
 <tr><td><code>observedGeneration</code></td><td>int64</td><td>Last observed resource generation</td></tr>
 <tr><td><code>conditions</code></td><td>Condition[]</td><td>Standard Kubernetes conditions</td></tr>
 </tbody>
@@ -301,15 +312,22 @@ stringData:
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="lldapgroup"><a class="header" href="#lldapgroup">LldapGroup</a></h1>
 <p>An <code>LldapGroup</code> resource declares an lldap group managed by the operator.</p>
+<p>Each resource must carry the <code>lldap-operator.lukidoescode.com/lldap-instance</code>
+label whose value selects which lldap instance the group belongs to.</p>
 <h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
 <pre><code class="language-yaml">apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapGroup
 metadata:
   name: engineering
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
 spec:
   displayName: "Engineering"
+  attributes:
+    - name: costCenter
+      value:
+        - "1234"
 </code></pre>
-<!-- TODO: Document behavior details and interaction with LldapUser group references -->
 <h2 id="spec-fields-1"><a class="header" href="#spec-fields-1">Spec Fields</a></h2>
 <div class="table-wrapper">
 <table>
@@ -317,7 +335,8 @@ spec:
 <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>displayName</code></td><td>string</td><td>yes</td><td>Group display name</td></tr>
+<tr><td><code>displayName</code></td><td>string</td><td>yes</td><td>Group display name (1–128 chars)</td></tr>
+<tr><td><code>attributes</code></td><td>AttributeValue[]</td><td>no</td><td>Custom attribute values; each requires a corresponding <code>LldapAttributeSchema</code> with <code>target: Group</code></td></tr>
 </tbody>
 </table>
 </div>
@@ -337,20 +356,100 @@ spec:
 </div>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="lldapmembership"><a class="header" href="#lldapmembership">LldapMembership</a></h1>
-<blockquote>
-<p><strong>Planned:</strong> This CRD is not yet implemented.</p>
-</blockquote>
-<p>An <code>LldapMembership</code> resource will manage the relationship between lldap users
-and groups independently of the <code>LldapUser</code> resource.</p>
-<!-- TODO: Define spec fields and document behavior once the CRD is implemented -->
+<p>An <code>LldapMembership</code> resource binds an lldap user to an lldap group.</p>
+<p>Each resource must carry the <code>lldap-operator.lukidoescode.com/lldap-instance</code>
+label whose value selects which lldap instance the membership applies to.</p>
+<p>The <code>userName</code> and <code>groupName</code> fields reference the lldap-side identifiers
+(the <code>spec.username</code> of an <code>LldapUser</code> and the <code>spec.displayName</code> of an
+<code>LldapGroup</code>), not Kubernetes <code>metadata.name</code> values.</p>
+<h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
+<pre><code class="language-yaml">apiVersion: lldap-operator.lukidoescode.com/v1alpha1
+kind: LldapMembership
+metadata:
+  name: alice-engineering
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
+spec:
+  userName: "alice.smith"
+  groupName: "Engineering"
+</code></pre>
+<h2 id="spec-fields-2"><a class="header" href="#spec-fields-2">Spec Fields</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>userName</code></td><td>string</td><td>yes</td><td>lldap username (1–64 chars)</td></tr>
+<tr><td><code>groupName</code></td><td>string</td><td>yes</td><td>lldap group display name (1–128 chars)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="status-2"><a class="header" href="#status-2">Status</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>observedGeneration</code></td><td>int64</td><td>Last observed resource generation</td></tr>
+<tr><td><code>conditions</code></td><td>Condition[]</td><td>Standard Kubernetes conditions</td></tr>
+</tbody>
+</table>
+</div>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="lldapattributeschema"><a class="header" href="#lldapattributeschema">LldapAttributeSchema</a></h1>
-<blockquote>
-<p><strong>Planned:</strong> This CRD is not yet implemented.</p>
-</blockquote>
-<p>An <code>LldapAttributeSchema</code> resource will manage custom attribute schemas in
-lldap, allowing operators to define additional fields for users and groups.</p>
-<!-- TODO: Define spec fields and document behavior once the CRD is implemented -->
+<p>An <code>LldapAttributeSchema</code> resource declares a custom attribute on either the
+user or group entity in lldap.</p>
+<p>Each resource must carry the <code>lldap-operator.lukidoescode.com/lldap-instance</code>
+label whose value selects which lldap instance owns the attribute schema.</p>
+<p>lldap does not support mutating an attribute schema after creation: the
+attribute can only be added or deleted. Updates to a schema’s type or flags
+require deleting and recreating the resource. Validation enforcing this
+constraint is tracked separately.</p>
+<h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
+<pre><code class="language-yaml">apiVersion: lldap-operator.lukidoescode.com/v1alpha1
+kind: LldapAttributeSchema
+metadata:
+  name: department
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
+spec:
+  attributeName: "department"
+  attributeType: "String"
+  target: "User"
+  isList: false
+  isVisible: true
+  isEditable: true
+</code></pre>
+<h2 id="spec-fields-3"><a class="header" href="#spec-fields-3">Spec Fields</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>attributeName</code></td><td>string</td><td>yes</td><td>Attribute identifier (1–64 chars, <code>[a-zA-Z][a-zA-Z0-9_]*</code>)</td></tr>
+<tr><td><code>attributeType</code></td><td>string</td><td>yes</td><td>One of <code>String</code>, <code>Integer</code>, <code>JpegPhoto</code>, <code>DateTime</code></td></tr>
+<tr><td><code>target</code></td><td>string</td><td>yes</td><td>One of <code>User</code>, <code>Group</code></td></tr>
+<tr><td><code>isList</code></td><td>bool</td><td>no</td><td>Whether the attribute holds multiple values</td></tr>
+<tr><td><code>isVisible</code></td><td>bool</td><td>no</td><td>Whether the attribute is visible to LDAP clients</td></tr>
+<tr><td><code>isEditable</code></td><td>bool</td><td>no</td><td>Whether the attribute is editable through the lldap UI</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="status-3"><a class="header" href="#status-3">Status</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>observedGeneration</code></td><td>int64</td><td>Last observed resource generation</td></tr>
+<tr><td><code>conditions</code></td><td>Condition[]</td><td>Standard Kubernetes conditions</td></tr>
+</tbody>
+</table>
+</div>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="multi-instance-deployment"><a class="header" href="#multi-instance-deployment">Multi-Instance Deployment</a></h1>
 <!-- TODO: Document patterns for managing multiple lldap instances from a single cluster -->
@@ -389,7 +488,7 @@ structured internally.</p>
 locally.</p>
 <h2 id="prerequisites-1"><a class="header" href="#prerequisites-1">Prerequisites</a></h2>
 <ul>
-<li>Rust 1.85+</li>
+<li>Rust 1.88+</li>
 <li>Docker</li>
 <li><a href="https://kind.sigs.k8s.io/">kind</a> or <a href="https://k3d.io/">k3d</a></li>
 <li><a href="https://helm.sh/">Helm</a> v3</li>
