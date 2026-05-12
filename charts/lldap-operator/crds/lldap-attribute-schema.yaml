@@ -1,25 +1,28 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: lldapgroups.lldap-operator.lukidoescode.com
+  name: lldapattributeschemas.lldap-operator.lukidoescode.com
 spec:
   group: lldap-operator.lukidoescode.com
   names:
     categories: []
-    kind: LldapGroup
-    plural: lldapgroups
+    kind: LldapAttributeSchema
+    plural: lldapattributeschemas
     shortNames:
-    - llg
-    singular: lldapgroup
+    - llas
+    singular: lldapattributeschema
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.displayName
-      name: DisplayName
+    - jsonPath: .spec.attributeName
+      name: Name
       type: string
-    - jsonPath: .status.groupId
-      name: GroupId
-      type: integer
+    - jsonPath: .spec.attributeType
+      name: Type
+      type: string
+    - jsonPath: .spec.target
+      name: Target
+      type: string
     - jsonPath: .status.conditions[?(@.type=="Ready")].status
       name: Ready
       type: string
@@ -29,31 +32,40 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Auto-generated derived type for LldapGroupSpec via `CustomResource`
+        description: Auto-generated derived type for LldapAttributeSchemaSpec via `CustomResource`
         properties:
           spec:
             properties:
-              attributes:
-                items:
-                  properties:
-                    name:
-                      type: string
-                    value:
-                      items:
-                        type: string
-                      type: array
-                  required:
-                  - name
-                  - value
-                  type: object
-                nullable: true
-                type: array
-              displayName:
-                maxLength: 128
+              attributeName:
+                maxLength: 64
                 minLength: 1
+                pattern: ^[a-zA-Z][a-zA-Z0-9_]*$
+                type: string
+              attributeType:
+                enum:
+                - String
+                - Integer
+                - JpegPhoto
+                - DateTime
+                type: string
+              isEditable:
+                default: false
+                type: boolean
+              isList:
+                default: false
+                type: boolean
+              isVisible:
+                default: false
+                type: boolean
+              target:
+                enum:
+                - User
+                - Group
                 type: string
             required:
-            - displayName
+            - attributeName
+            - attributeType
+            - target
             type: object
           status:
             nullable: true
@@ -91,21 +103,14 @@ spec:
                   type: object
                 nullable: true
                 type: array
-              groupId:
-                format: int32
-                nullable: true
-                type: integer
               observedGeneration:
                 format: int64
                 nullable: true
                 type: integer
-              uuid:
-                nullable: true
-                type: string
             type: object
         required:
         - spec
-        title: LldapGroupValidated
+        title: LldapAttributeSchemaValidated
         type: object
         x-kubernetes-validations:
         - message: metadata.labels must include 'lldap-operator.lukidoescode.com/lldap-instance' with a non-empty value

@@ -2,17 +2,22 @@ apiVersion: lldap-operator.lukidoescode.com/v1alpha1
 kind: LldapUser
 metadata:
   name: alice
+  labels:
+    lldap-operator.lukidoescode.com/lldap-instance: default
 spec:
   username: "alice.smith"
   email: "alice.smith@example.com"
   displayName: "Alice Smith"
   firstName: "Alice"
   lastName: "Smith"
-  groups:
-    - "engineering"
+  passwordPolicy: Manage
   passwordSecretRef:
     name: alice-password
     key: password
+  attributes:
+    - name: department
+      value:
+        - "Engineering"
 ---
 apiVersion: v1
 kind: Secret

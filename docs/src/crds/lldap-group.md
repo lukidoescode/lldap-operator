@@ -2,19 +2,21 @@
 
 An `LldapGroup` resource declares an lldap group managed by the operator.
 
+Each resource must carry the `lldap-operator.lukidoescode.com/lldap-instance`
+label whose value selects which lldap instance the group belongs to.
+
 ## Example
 
 ```yaml
 {{#include ../../examples/lldap-group.yaml}}
 ```
 
-<!-- TODO: Document behavior details and interaction with LldapUser group references -->
-
 ## Spec Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `displayName` | string | yes | Group display name |
+| `displayName` | string | yes | Group display name (1–128 chars) |
+| `attributes` | AttributeValue[] | no | Custom attribute values; each requires a corresponding `LldapAttributeSchema` with `target: Group` |
 
 ## Status
 

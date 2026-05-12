@@ -81,6 +81,23 @@ jobs:
       - name: Check MSRV
         run: cargo test --workspace --all-targets --locked
 
+  crd-yaml-up-to-date:
+    name: CRD YAML Up-To-Date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Regenerate CRD YAML
+        run: cargo run -p lldap-operator-crds --bin crdgen
+
+      - name: Verify chart CRD YAML is up to date
+        run: git diff --exit-code charts/lldap-operator/crds
+
   helm-lint:
     name: Helm Lint
     runs-on: ubuntu-latest
